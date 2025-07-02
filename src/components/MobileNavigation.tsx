@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Target, PieChart, FileText, Brain } from 'lucide-react';
+import { BarChart3, Target, PieChart, FileText, Brain, Monitor } from 'lucide-react';
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -11,6 +11,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeTab, setActiv
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'trading', label: 'Trading', icon: Target },
     { id: 'algorithms', label: 'Algorithms', icon: Brain },
+    { id: 'internals', label: 'Internals', icon: Monitor },
     { id: 'portfolio', label: 'Portfolio', icon: PieChart },
     { id: 'reports', label: 'Reports', icon: FileText },
   ];
@@ -28,13 +29,13 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeTab, setActiv
             <button
               key={item.id}
               onClick={() => handleTabChange(item.id)}
-              className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+              className={`flex flex-col items-center space-y-1 px-2 py-2 rounded-lg transition-all duration-200 ${
                 activeTab === item.id
                   ? 'text-white bg-tech-gray-800'
                   : 'text-tech-gray-400 hover:text-white'
               }`}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-4 h-4" />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           );

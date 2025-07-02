@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Target, PieChart, FileText, TrendingUp, Brain } from 'lucide-react';
+import { BarChart3, Target, PieChart, FileText, TrendingUp, Brain, Monitor } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'trading', label: 'Trading Strategies', icon: Target },
     { id: 'algorithms', label: 'Algorithm Viewer', icon: Brain },
+    { id: 'internals', label: 'System Internals', icon: Monitor },
     { id: 'portfolio', label: 'Portfolio Analysis', icon: PieChart },
     { id: 'reports', label: 'Reports', icon: FileText },
   ];

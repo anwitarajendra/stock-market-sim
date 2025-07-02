@@ -9,6 +9,7 @@ import AlertPanel from './AlertPanel';
 import ReportSection from './ReportSection';
 import MobileNavigation from './MobileNavigation';
 import AlgorithmVisualization from './AlgorithmVisualization';
+import SystemInternals from './SystemInternals';
 import NotificationPanel from './NotificationPanel';
 import UserProfile from './UserProfile';
 import { useTheme } from '../contexts/ThemeContext';
@@ -85,6 +86,10 @@ const Dashboard = () => {
             <div className="max-w-6xl mx-auto">
               <AlgorithmVisualization />
             </div>
+          )}
+
+          {activeTab === 'internals' && (
+            <SystemInternals />
           )}
           
           {activeTab === 'portfolio' && (
