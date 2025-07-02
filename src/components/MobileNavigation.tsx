@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Play, Vibrate as Strategy, PieChart, FileText, Brain } from 'lucide-react';
+import { BarChart3, Target, PieChart, FileText, Brain } from 'lucide-react';
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -9,7 +9,7 @@ interface MobileNavigationProps {
 const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'simulation', label: 'Simulate', icon: Play },
+    { id: 'trading', label: 'Trading', icon: Target },
     { id: 'algorithms', label: 'Algorithms', icon: Brain },
     { id: 'portfolio', label: 'Portfolio', icon: PieChart },
     { id: 'reports', label: 'Reports', icon: FileText },

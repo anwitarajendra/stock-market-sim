@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Play, Vibrate as Strategy, PieChart, FileText, TrendingUp, Brain } from 'lucide-react';
+import { BarChart3, Target, PieChart, FileText, TrendingUp, Brain } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
@@ -12,8 +12,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'simulation', label: 'Run Simulation', icon: Play },
-    { id: 'strategy', label: 'Choose Strategy', icon: Strategy },
+    { id: 'trading', label: 'Trading Strategies', icon: Target },
     { id: 'algorithms', label: 'Algorithm Viewer', icon: Brain },
     { id: 'portfolio', label: 'Portfolio Analysis', icon: PieChart },
     { id: 'reports', label: 'Reports', icon: FileText },

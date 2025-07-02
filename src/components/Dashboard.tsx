@@ -75,14 +75,8 @@ const Dashboard = () => {
             </div>
           )}
           
-          {activeTab === 'simulation' && (
-            <div className="max-w-4xl mx-auto">
-              <StrategySelector />
-            </div>
-          )}
-          
-          {activeTab === 'strategy' && (
-            <div className="max-w-4xl mx-auto">
+          {activeTab === 'trading' && (
+            <div className="max-w-6xl mx-auto">
               <StrategySelector />
             </div>
           )}
