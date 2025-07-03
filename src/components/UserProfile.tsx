@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
-import { X, User, Settings, LogOut, Shield, Bell, Moon, Sun } from 'lucide-react';
+import React from 'react';
+import { X, User, TrendingUp, DollarSign, PieChart } from 'lucide-react';
 
 interface UserProfileProps {
   onClose: () => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
-  const [darkMode, setDarkMode] = useState(true);
-  const [notifications, setNotifications] = useState(true);
-
   const userStats = {
-    name: 'Alex Thompson',
-    email: 'alex.thompson@email.com',
+    name: 'VEDANK CHATURVEDI',
+    email: 'vedank.chaturvedi@example.com',
     joinDate: 'March 2024',
     totalTrades: 247,
     winRate: 74.5,
@@ -32,10 +29,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
       </div>
 
       <div className="p-4">
-        {/* User Info */}
+        {/* User Info with Profile Picture */}
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-br from-tech-gray-700 to-tech-gray-600 rounded-full flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            V
           </div>
           <div>
             <h4 className="font-semibold text-white">{userStats.name}</h4>
@@ -44,79 +41,53 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Trading Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-white">{userStats.totalTrades}</div>
-            <div className="text-xs text-tech-gray-400">Total Trades</div>
-          </div>
-          <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-accent-green">{userStats.winRate}%</div>
-            <div className="text-xs text-tech-gray-400">Win Rate</div>
-          </div>
-          <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-accent-green">${userStats.totalProfit.toLocaleString()}</div>
-            <div className="text-xs text-tech-gray-400">Total Profit</div>
-          </div>
-          <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-accent-yellow">{userStats.riskScore}/10</div>
-            <div className="text-xs text-tech-gray-400">Risk Score</div>
-          </div>
-        </div>
-
-        {/* Settings */}
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Moon className="w-4 h-4 text-tech-gray-400" />
-              <span className="text-sm text-white">Dark Mode</span>
-            </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`w-10 h-6 rounded-full transition-colors ${
-                darkMode ? 'bg-accent-blue' : 'bg-tech-gray-700'
-              }`}
-            >
-              <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                darkMode ? 'translate-x-5' : 'translate-x-1'
-              }`}></div>
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Bell className="w-4 h-4 text-tech-gray-400" />
-              <span className="text-sm text-white">Notifications</span>
-            </div>
-            <button
-              onClick={() => setNotifications(!notifications)}
-              className={`w-10 h-6 rounded-full transition-colors ${
-                notifications ? 'bg-accent-green' : 'bg-tech-gray-700'
-              }`}
-            >
-              <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                notifications ? 'translate-x-5' : 'translate-x-1'
-              }`}></div>
-            </button>
-          </div>
-        </div>
-
-        {/* Menu Items */}
-        <div className="space-y-2">
-          <button className="w-full flex items-center space-x-3 px-3 py-2 text-left text-tech-gray-300 hover:text-white hover:bg-tech-gray-800 rounded-lg transition-colors">
-            <Settings className="w-4 h-4" />
-            <span className="text-sm">Account Settings</span>
-          </button>
+        {/* Portfolio Investment Stats */}
+        <div className="space-y-4">
+          <h5 className="text-sm font-semibold text-white mb-3">Portfolio Investment</h5>
           
-          <button className="w-full flex items-center space-x-3 px-3 py-2 text-left text-tech-gray-300 hover:text-white hover:bg-tech-gray-800 rounded-lg transition-colors">
-            <Shield className="w-4 h-4" />
-            <span className="text-sm">Privacy & Security</span>
-          </button>
-          
-          <button className="w-full flex items-center space-x-3 px-3 py-2 text-left text-accent-red hover:bg-tech-gray-800 rounded-lg transition-colors">
-            <LogOut className="w-4 h-4" />
-            <span className="text-sm">Sign Out</span>
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
+              <TrendingUp className="w-5 h-5 text-accent-green mx-auto mb-1" />
+              <div className="text-lg font-bold text-white">{userStats.totalTrades}</div>
+              <div className="text-xs text-tech-gray-400">Total Trades</div>
+            </div>
+            
+            <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
+              <PieChart className="w-5 h-5 text-accent-blue mx-auto mb-1" />
+              <div className="text-lg font-bold text-accent-green">{userStats.winRate}%</div>
+              <div className="text-xs text-tech-gray-400">Win Rate</div>
+            </div>
+            
+            <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
+              <DollarSign className="w-5 h-5 text-accent-green mx-auto mb-1" />
+              <div className="text-lg font-bold text-accent-green">${userStats.totalProfit.toLocaleString()}</div>
+              <div className="text-xs text-tech-gray-400">Total Profit</div>
+            </div>
+            
+            <div className="bg-tech-gray-950 rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-accent-yellow">{userStats.riskScore}/10</div>
+              <div className="text-xs text-tech-gray-400">Risk Score</div>
+            </div>
+          </div>
+
+          {/* Investment Summary */}
+          <div className="bg-tech-gray-950 rounded-lg p-4 mt-4">
+            <h6 className="text-sm font-semibold text-white mb-2">Investment Summary</h6>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-tech-gray-400">Total Invested:</span>
+                <span className="text-white font-semibold">$15,000</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-tech-gray-400">Current Value:</span>
+                <span className="text-accent-green font-semibold">$17,847</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-tech-gray-400">Total Return:</span>
+                <span className="text-accent-green font-semibold">+18.98%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

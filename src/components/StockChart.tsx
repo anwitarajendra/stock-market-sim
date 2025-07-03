@@ -1,24 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { stockApi, ChartData, StockData } from '../services/stockApi';
 
 interface StockChartProps {
   terminalMode: boolean;
 }
 
+interface CandlestickData extends ChartData {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
 const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [selectedStock, setSelectedStock] = useState('AAPL');
-  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [currentData, setCurrentData] = useState<StockData | null>(null);
   
   const timeframes = ['1D', '1W', '1M', '1Y', 'Max'];
   const stocks = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'NVDA'];
 
+  // Generate candlestick data
+  const generateCandlestickData = (symbol: string, timeframe: string): CandlestickData[] => {
+    const dataPoints = timeframe === '1D' ? 24 : timeframe === '1W' ? 7 : 30;
+    const data: CandlestickData[] = [];
+    let currentPrice = 173.50; // Base price for AAPL
+    
+    for (let i = dataPoints; i >= 0; i--) {
+      const volatility = 0.02;
+      const open = currentPrice;
+      const change = (Math.random() - 0.5) * volatility * currentPrice;
+      const close = Math.max(open + change, 0.01);
+      
+      // Generate high and low based on open and close
+      const high = Math.max(open, close) + Math.random() * 0.01 * currentPrice;
+      const low = Math.min(open, close) - Math.random() * 0.01 * currentPrice;
+      
+      const time = timeframe === '1D' 
+        ? `${String(9 + Math.floor(i * 7 / dataPoints)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`
+        : timeframe === '1W'
+        ? new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString()
+        : new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString();
+      
+      data.push({
+        time,
+        price: Number(close.toFixed(2)),
+        volume: Math.floor(Math.random() * 1000000) + 500000,
+        open: Number(open.toFixed(2)),
+        high: Number(high.toFixed(2)),
+        low: Number(low.toFixed(2)),
+        close: Number(close.toFixed(2)),
+      });
+      
+      currentPrice = close;
+    }
+    
+    return data.reverse();
+  };
+
   useEffect(() => {
-    // Load chart data
-    const data = stockApi.generateChartData(selectedStock, timeframe);
+    // Load candlestick data
+    const data = generateCandlestickData(selectedStock, timeframe);
     setChartData(data);
 
     // Subscribe to real-time updates
@@ -58,7 +102,7 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
           {chartData.slice(-6).map((point, index) => (
             <div key={index} className="text-center">
               <div className="text-gray-400">{point.time}</div>
-              <div className="text-green-400">${point.price}</div>
+              <div className="text-green-400">${point.close}</div>
               <div className="text-blue-400">{(point.volume / 1000).toFixed(0)}K</div>
             </div>
           ))}
@@ -66,6 +110,22 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
       </div>
     );
   }
+
+  // Calculate chart dimensions
+  const chartWidth = 800;
+  const chartHeight = 300;
+  const padding = 40;
+  const candleWidth = 8;
+
+  // Find price range
+  const allPrices = chartData.flatMap(d => [d.high, d.low]);
+  const minPrice = Math.min(...allPrices) * 0.99;
+  const maxPrice = Math.max(...allPrices) * 1.01;
+  const priceRange = maxPrice - minPrice;
+
+  // Scale functions
+  const scaleX = (index: number) => padding + (index * (chartWidth - 2 * padding)) / Math.max(chartData.length - 1, 1);
+  const scaleY = (price: number) => chartHeight - padding - ((price - minPrice) / priceRange) * (chartHeight - 2 * padding);
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 hover:shadow-lg transition-all duration-300">
@@ -118,40 +178,77 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
         ))}
       </div>
       
-      {/* Chart Area */}
-      <div className="relative h-64 bg-gray-50 rounded-lg p-4 mb-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="time" 
-              stroke="#6b7280"
-              fontSize={12}
+      {/* Candlestick Chart */}
+      <div className="relative h-80 bg-gray-50 rounded-lg p-4 mb-4">
+        <svg width="100%" height="100%" viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="overflow-visible">
+          {/* Grid lines */}
+          {[...Array(6)].map((_, i) => (
+            <line
+              key={i}
+              x1={padding}
+              y1={padding + (i * (chartHeight - 2 * padding)) / 5}
+              x2={chartWidth - padding}
+              y2={padding + (i * (chartHeight - 2 * padding)) / 5}
+              stroke="#e5e7eb"
+              strokeWidth="1"
             />
-            <YAxis 
-              stroke="#6b7280"
-              fontSize={12}
-              domain={['dataMin - 5', 'dataMax + 5']}
-            />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                color: '#111827',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="price" 
-              stroke="#2563eb" 
-              strokeWidth={2}
-              dot={{ fill: '#2563eb', strokeWidth: 2, r: 3 }}
-              activeDot={{ r: 5, fill: '#2563eb' }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+          ))}
+          
+          {/* Candlesticks */}
+          {chartData.map((candle, index) => {
+            const x = scaleX(index);
+            const openY = scaleY(candle.open);
+            const closeY = scaleY(candle.close);
+            const highY = scaleY(candle.high);
+            const lowY = scaleY(candle.low);
+            
+            const isGreen = candle.close > candle.open;
+            const bodyTop = Math.min(openY, closeY);
+            const bodyHeight = Math.abs(closeY - openY);
+            const color = isGreen ? '#10b981' : '#ef4444';
+            
+            return (
+              <g key={index}>
+                {/* High-Low line (wick) */}
+                <line
+                  x1={x}
+                  y1={highY}
+                  x2={x}
+                  y2={lowY}
+                  stroke={color}
+                  strokeWidth="1"
+                />
+                {/* Body */}
+                <rect
+                  x={x - candleWidth / 2}
+                  y={bodyTop}
+                  width={candleWidth}
+                  height={Math.max(bodyHeight, 1)}
+                  fill={isGreen ? color : color}
+                  stroke={color}
+                  strokeWidth="1"
+                />
+              </g>
+            );
+          })}
+          
+          {/* Price labels */}
+          {[...Array(6)].map((_, i) => {
+            const price = minPrice + (i * priceRange) / 5;
+            const y = padding + (i * (chartHeight - 2 * padding)) / 5;
+            return (
+              <text
+                key={i}
+                x={padding - 10}
+                y={y + 4}
+                textAnchor="end"
+                className="text-xs fill-gray-500"
+              >
+                ${price.toFixed(0)}
+              </text>
+            );
+          })}
+        </svg>
         
         {/* Overlay Info */}
         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 border border-gray-200 shadow-sm">
