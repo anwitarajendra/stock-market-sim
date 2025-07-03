@@ -29,6 +29,16 @@ const Portfolio = () => {
   const [realtimeData, setRealtimeData] = useState<{ [key: string]: StockData }>({});
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  // Stock colors for visual identification
+  const stockColors = {
+    'AAPL': '#007AFF',    // Apple Blue
+    'GOOGL': '#4285F4',   // Google Blue
+    'TSLA': '#CC0000',    // Tesla Red
+    'MSFT': '#00BCF2',    // Microsoft Blue
+    'NVDA': '#76B900',    // NVIDIA Green
+    'AMZN': '#FF9900'     // Amazon Orange
+  };
+
   useEffect(() => {
     // Subscribe to real-time updates for all holdings
     const unsubscribes = portfolioData.holdings.map(holding => 
@@ -75,7 +85,7 @@ const Portfolio = () => {
           <button
             onClick={handleDownloadPDF}
             disabled={isGeneratingPDF}
-            className="btn-primary px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 disabled:opacity-50"
+            className="btn-primary px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 disabled:opacity-50 transition-all duration-300 hover:scale-105"
           >
             <Download className="w-4 h-4" />
             <span>{isGeneratingPDF ? 'Generating...' : 'Download PDF'}</span>
@@ -85,7 +95,7 @@ const Portfolio = () => {
 
       {/* Portfolio Summary */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-tech-gray-950 rounded-lg p-4">
+        <div className="bg-tech-gray-950 rounded-lg p-4 transition-all duration-300 hover:bg-tech-gray-800">
           <div className="flex items-center space-x-2 mb-2">
             <DollarSign className="w-5 h-5 text-accent-green" />
             <span className="text-sm text-tech-gray-400">Total Invested</span>
@@ -95,7 +105,7 @@ const Portfolio = () => {
           </div>
         </div>
         
-        <div className="bg-tech-gray-950 rounded-lg p-4">
+        <div className="bg-tech-gray-950 rounded-lg p-4 transition-all duration-300 hover:bg-tech-gray-800">
           <div className="flex items-center space-x-2 mb-2">
             <TrendingUp className="w-5 h-5 text-accent-blue" />
             <span className="text-sm text-tech-gray-400">Current Value</span>
@@ -105,7 +115,7 @@ const Portfolio = () => {
           </div>
         </div>
         
-        <div className="bg-tech-gray-950 rounded-lg p-4">
+        <div className="bg-tech-gray-950 rounded-lg p-4 transition-all duration-300 hover:bg-tech-gray-800">
           <div className="flex items-center space-x-2 mb-2">
             <PieChart className="w-5 h-5 text-accent-purple" />
             <span className="text-sm text-tech-gray-400">Algorithm Score</span>
@@ -115,7 +125,7 @@ const Portfolio = () => {
           </div>
         </div>
         
-        <div className="bg-tech-gray-950 rounded-lg p-4">
+        <div className="bg-tech-gray-950 rounded-lg p-4 transition-all duration-300 hover:bg-tech-gray-800">
           <div className="flex items-center space-x-2 mb-2">
             <Shield className="w-5 h-5 text-accent-yellow" />
             <span className="text-sm text-tech-gray-400">Risk Index</span>
@@ -126,18 +136,22 @@ const Portfolio = () => {
         </div>
       </div>
 
-      {/* Holdings List */}
+      {/* Holdings List with Color Coding */}
       <div>
         <h3 className="text-lg font-semibold text-white mb-3">Holdings</h3>
         <div className="space-y-2">
           {portfolioData.holdings.map((holding, index) => {
             const liveData = realtimeData[holding.symbol];
             const currentChange = liveData?.changePercent || holding.change;
+            const stockColor = stockColors[holding.symbol as keyof typeof stockColors] || '#6b7280';
             
             return (
-              <div key={index} className="flex items-center justify-between p-3 bg-tech-gray-950 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-3 bg-tech-gray-950 rounded-lg transition-all duration-300 hover:bg-tech-gray-800 hover:scale-[1.02]">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-tech-gray-700 to-tech-gray-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg"
+                    style={{ backgroundColor: stockColor }}
+                  >
                     {holding.symbol.slice(0, 2)}
                   </div>
                   <div>
@@ -150,7 +164,7 @@ const Portfolio = () => {
                   <div className="font-semibold text-white">
                     ${liveData?.price ? (liveData.price * holding.allocation * 10).toLocaleString() : holding.value.toLocaleString()}
                   </div>
-                  <div className={`text-sm font-semibold ${
+                  <div className={`text-sm font-semibold transition-colors duration-300 ${
                     currentChange >= 0 ? 'text-accent-green' : 'text-accent-red'
                   }`}>
                     {currentChange >= 0 ? '+' : ''}{currentChange.toFixed(2)}%
@@ -162,7 +176,7 @@ const Portfolio = () => {
         </div>
       </div>
 
-      {/* Pie Chart Visualization */}
+      {/* Enhanced Pie Chart Visualization with Colors */}
       <div className="mt-6 flex justify-center">
         <div className="relative w-48 h-48">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
@@ -176,19 +190,44 @@ const Portfolio = () => {
               const x2 = 60 + 40 * Math.cos((endAngle * Math.PI) / 180);
               const y2 = 60 + 40 * Math.sin((endAngle * Math.PI) / 180);
               
-              const colors = ['#ffffff', '#d1d5db', '#9ca3af', '#6b7280', '#4b5563', '#374151'];
+              const stockColor = stockColors[holding.symbol as keyof typeof stockColors] || '#6b7280';
               
               return (
                 <path
                   key={index}
                   d={`M 60,60 L ${x1},${y1} A 40,40 0 ${largeArcFlag},1 ${x2},${y2} z`}
-                  fill={colors[index % colors.length]}
-                  className="hover:opacity-80 transition-opacity cursor-pointer"
+                  fill={stockColor}
+                  className="hover:opacity-80 transition-all duration-300 cursor-pointer hover:scale-105"
+                  style={{ transformOrigin: '60px 60px' }}
                 />
               );
             })}
           </svg>
+          
+          {/* Center label */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-lg font-bold text-white">Portfolio</div>
+              <div className="text-sm text-tech-gray-400">Distribution</div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Color Legend */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {portfolioData.holdings.map((holding, index) => {
+          const stockColor = stockColors[holding.symbol as keyof typeof stockColors] || '#6b7280';
+          return (
+            <div key={index} className="flex items-center space-x-2">
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: stockColor }}
+              ></div>
+              <span className="text-sm text-tech-gray-400">{holding.symbol} ({holding.allocation}%)</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -13,11 +13,19 @@ interface CandlestickData extends ChartData {
   close: number;
 }
 
+interface TooltipData {
+  x: number;
+  y: number;
+  data: CandlestickData;
+  visible: boolean;
+}
+
 const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
   const [timeframe, setTimeframe] = useState('1D');
   const [selectedStock, setSelectedStock] = useState('AAPL');
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [currentData, setCurrentData] = useState<StockData | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipData>({ x: 0, y: 0, data: {} as CandlestickData, visible: false });
   
   const timeframes = ['1D', '1W', '1M', '1Y', 'Max'];
   const stocks = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'NVDA'];
@@ -61,7 +69,7 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
   };
 
   useEffect(() => {
-    // Load candlestick data
+    // Load candlestick data with smooth transition
     const data = generateCandlestickData(selectedStock, timeframe);
     setChartData(data);
 
@@ -79,6 +87,23 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
 
   const handleStockChange = (stock: string) => {
     setSelectedStock(stock);
+  };
+
+  const handleMouseMove = (event: React.MouseEvent<SVGElement>, candle: CandlestickData, index: number) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    setTooltip({
+      x: x + 10,
+      y: y - 10,
+      data: candle,
+      visible: true
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTooltip(prev => ({ ...prev, visible: false }));
   };
 
   if (terminalMode) {
@@ -149,9 +174,9 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
             <button
               key={tf}
               onClick={() => handleTimeframeChange(tf)}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                 timeframe === tf
-                  ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                  ? 'bg-blue-100 text-blue-700 border border-blue-300 shadow-md'
                   : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
@@ -167,9 +192,9 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
           <button
             key={stock}
             onClick={() => handleStockChange(stock)}
-            className={`px-3 py-1 rounded text-sm font-medium transition-all duration-200 ${
+            className={`px-3 py-1 rounded text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
               selectedStock === stock
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-700 hover:text-gray-900 hover:bg-gray-200'
             }`}
           >
@@ -180,7 +205,13 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
       
       {/* Candlestick Chart */}
       <div className="relative h-80 bg-gray-50 rounded-lg p-4 mb-4">
-        <svg width="100%" height="100%" viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="overflow-visible">
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`} 
+          className="overflow-visible"
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Grid lines */}
           {[...Array(6)].map((_, i) => (
             <line
@@ -191,10 +222,11 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
               y2={padding + (i * (chartHeight - 2 * padding)) / 5}
               stroke="#e5e7eb"
               strokeWidth="1"
+              opacity="0.5"
             />
           ))}
           
-          {/* Candlesticks */}
+          {/* Candlesticks with hover */}
           {chartData.map((candle, index) => {
             const x = scaleX(index);
             const openY = scaleY(candle.open);
@@ -208,7 +240,18 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
             const color = isGreen ? '#10b981' : '#ef4444';
             
             return (
-              <g key={index}>
+              <g key={index} className="transition-all duration-200">
+                {/* Invisible hover area */}
+                <rect
+                  x={x - candleWidth}
+                  y={highY}
+                  width={candleWidth * 2}
+                  height={lowY - highY}
+                  fill="transparent"
+                  className="cursor-crosshair"
+                  onMouseMove={(e) => handleMouseMove(e, candle, index)}
+                />
+                
                 {/* High-Low line (wick) */}
                 <line
                   x1={x}
@@ -216,8 +259,10 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
                   x2={x}
                   y2={lowY}
                   stroke={color}
-                  strokeWidth="1"
+                  strokeWidth="1.5"
+                  className="transition-all duration-200 hover:stroke-width-2"
                 />
+                
                 {/* Body */}
                 <rect
                   x={x - candleWidth / 2}
@@ -227,6 +272,7 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
                   fill={isGreen ? color : color}
                   stroke={color}
                   strokeWidth="1"
+                  className="transition-all duration-200 hover:opacity-80 hover:stroke-width-2"
                 />
               </g>
             );
@@ -250,8 +296,40 @@ const StockChart: React.FC<StockChartProps> = ({ terminalMode }) => {
           })}
         </svg>
         
+        {/* Tooltip */}
+        {tooltip.visible && (
+          <div 
+            className="absolute bg-gray-900 text-white p-3 rounded-lg shadow-lg z-10 pointer-events-none transition-all duration-200"
+            style={{ left: tooltip.x, top: tooltip.y }}
+          >
+            <div className="text-sm font-semibold mb-1">{selectedStock} - {tooltip.data.time}</div>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between space-x-4">
+                <span>Open:</span>
+                <span className="font-mono">${tooltip.data.open}</span>
+              </div>
+              <div className="flex justify-between space-x-4">
+                <span>High:</span>
+                <span className="font-mono text-green-400">${tooltip.data.high}</span>
+              </div>
+              <div className="flex justify-between space-x-4">
+                <span>Low:</span>
+                <span className="font-mono text-red-400">${tooltip.data.low}</span>
+              </div>
+              <div className="flex justify-between space-x-4">
+                <span>Close:</span>
+                <span className="font-mono">${tooltip.data.close}</span>
+              </div>
+              <div className="flex justify-between space-x-4">
+                <span>Volume:</span>
+                <span className="font-mono">{(tooltip.data.volume / 1000).toFixed(0)}K</span>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Overlay Info */}
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 border border-gray-200 shadow-sm">
+        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 border border-gray-200 shadow-sm transition-all duration-300">
           <div className="text-2xl font-bold text-gray-900">${currentData?.price || '---'}</div>
           <div className="text-sm text-gray-500">{selectedStock}</div>
         </div>
