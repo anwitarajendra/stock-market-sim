@@ -6,11 +6,11 @@ A full-stack stock trading simulator built with **React**, **Tailwind CSS**, and
 
 ## 🚀 Features
 
-- 🔁 Simulated order placement
-- 📊 Trade summary and analytics
-- ⚙️ Basic algorithm integration
-- 🌐 Lightning-fast build with Vite
-- 🧩 Modular UI using React components
+-  Simulated order placement
+-  Trade summary and analytics
+-  Basic algorithm integration
+-  Lightning-fast build with Vite
+-  Modular UI using React components
 
 ---
 
